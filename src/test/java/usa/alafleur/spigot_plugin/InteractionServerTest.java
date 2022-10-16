@@ -14,7 +14,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class InteractionServerTest {
     public static final int MOCK_TOTAL_PLAYERS_ONLINE_COUNT = 3;
-    public static final InteractionServer TEST_SERVER = new InteractionServer(1234);
+    public static final int TEST_SERVER_PORT = 1234;
+
+    public static final InteractionServer TEST_SERVER = new InteractionServer(TEST_SERVER_PORT);
 
     @BeforeAll
     public static void setupAll() {
@@ -32,13 +34,20 @@ class InteractionServerTest {
 
     @Test
     public void Test_InteractionServerPings() throws IOException {
-        Socket client = new Socket("localhost", 1234);
-        assertTrue(client.isConnected());
+        assertEquals("pong", submitRequest("ping"));
+    }
 
-        PrintWriter out = new PrintWriter(client.getOutputStream(), true);
-        BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-        out.println("ping");
-        assertEquals("pong", in.readLine().trim());
+    @Test
+    public void Test_InteractionServerGivesOnlineCount() throws IOException {
+        assertEquals(Integer.toString(MOCK_TOTAL_PLAYERS_ONLINE_COUNT), submitRequest("total_players_online"));
+    }
+
+    private String submitRequest(String request) throws IOException {
+        Socket client = new Socket("localhost", TEST_SERVER_PORT);
+        new PrintWriter(client.getOutputStream(), true).println(request);
+        String response = new BufferedReader(new InputStreamReader(client.getInputStream())).readLine();
         client.close();
+
+        return response.trim();
     }
 }

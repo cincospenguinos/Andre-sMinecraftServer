@@ -4,6 +4,8 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class InteractionServer implements Runnable {
     private static final long CLIENT_CHECK_INTERVAL_MILLIS = 10L;
@@ -11,10 +13,17 @@ public class InteractionServer implements Runnable {
     private ServerSourceOfTruth _source;
     private int listeningPort;
     private final AtomicBoolean keepRunning;
+    private Logger _logger;
 
     public InteractionServer(int port) {
         listeningPort = port;
         keepRunning = new AtomicBoolean(true);
+    }
+
+    public InteractionServer(int port, Logger logger) {
+        listeningPort = port;
+        keepRunning = new AtomicBoolean(true);
+        _logger = logger;
     }
 
     public void start() {
@@ -30,18 +39,28 @@ public class InteractionServer implements Runnable {
                 Thread.sleep(CLIENT_CHECK_INTERVAL_MILLIS);
 
                 Socket client = socket.accept();
-                BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-                String message = in.readLine();
-                PrintWriter out = new PrintWriter(client.getOutputStream());
-                out.println("pong");
-                out.flush();
+                String request = new BufferedReader(new InputStreamReader(client.getInputStream())).readLine();
+                String response = responseFor(request);
+                new PrintWriter(client.getOutputStream(), true).println(response);
                 client.close();
             }
-        } catch (InterruptedException e) {
-            // TODO: Log interrupted exception information and stop the interaction server
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (InterruptedException | IOException e) {
+            if (_logger != null) {
+                _logger.log(Level.SEVERE, e.toString());
+            }
         }
+    }
+
+    private String responseFor(String request) {
+        if (request.equals("ping")) {
+            return "pong";
+        }
+
+        if (request.equals("total_players_online")) {
+            return Integer.toString(_source.getTotalPlayersOnline());
+        }
+
+        return "invalid_request";
     }
 
     public void stop() {
@@ -50,5 +69,9 @@ public class InteractionServer implements Runnable {
 
     public void setSourceOfTruth(ServerSourceOfTruth source) {
         _source = source;
+    }
+
+    public void setLogger(Logger logger) {
+        _logger = logger;
     }
 }
