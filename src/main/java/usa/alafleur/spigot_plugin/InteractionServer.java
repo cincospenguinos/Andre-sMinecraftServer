@@ -20,9 +20,10 @@ public class InteractionServer implements Runnable {
         keepRunning = new AtomicBoolean(true);
     }
 
-    public InteractionServer(int port, Logger logger) {
+    public InteractionServer(int port, ServerMaintenanceInformation sourceOfTruth, Logger logger) {
         listeningPort = port;
         keepRunning = new AtomicBoolean(true);
+        _source = sourceOfTruth;
         _logger = logger;
     }
 

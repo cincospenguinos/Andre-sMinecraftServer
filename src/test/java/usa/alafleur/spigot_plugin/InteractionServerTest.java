@@ -23,7 +23,6 @@ class InteractionServerTest {
         MockSourceOfTruth mockSource = new MockSourceOfTruth();
         mockSource.TotalPlayersOnline = MOCK_TOTAL_PLAYERS_ONLINE_COUNT;
         TEST_SERVER.setSourceOfTruth(mockSource);
-
         TEST_SERVER.start();
     }
 
@@ -44,6 +43,7 @@ class InteractionServerTest {
 
     private String submitRequest(String request) throws IOException {
         Socket client = new Socket("localhost", TEST_SERVER_PORT);
+        client.setSoTimeout(300);
         new PrintWriter(client.getOutputStream(), true).println(request);
         String response = new BufferedReader(new InputStreamReader(client.getInputStream())).readLine();
         client.close();
