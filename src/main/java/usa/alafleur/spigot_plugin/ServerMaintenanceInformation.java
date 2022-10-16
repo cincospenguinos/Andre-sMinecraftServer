@@ -9,9 +9,13 @@ import org.bukkit.Server;
 public class ServerMaintenanceInformation {
     private final long _startupTime;
     private Server _server;
+    private long _lastLoginMillis;
+    private final Object _mutex;
 
     public ServerMaintenanceInformation() {
         _startupTime = System.currentTimeMillis();
+        _lastLoginMillis = -1;
+        _mutex = new Object();
     }
 
     /**
@@ -26,6 +30,23 @@ public class ServerMaintenanceInformation {
 
     public int getTotalPlayersOnline() {
         return _server.getOnlinePlayers().size();
+    }
+
+    /**
+     * Inform this source of truth that a player logged on.
+     */
+    public void playerLoggedOn() {
+        synchronized (_mutex) {
+            _lastLoginMillis = System.currentTimeMillis();
+        }
+    }
+
+    public long getMillisSinceLastLogin() {
+        if (_lastLoginMillis < 0) {
+            return 0;
+        }
+
+        return System.currentTimeMillis() - _lastLoginMillis;
     }
 
     public void setServer(Server server) {

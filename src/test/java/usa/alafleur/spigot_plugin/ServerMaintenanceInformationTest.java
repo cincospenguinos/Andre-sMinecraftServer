@@ -29,4 +29,13 @@ class ServerMaintenanceInformationTest {
         server.TotalOnlinePlayers = 10;
         assertEquals(10, source.getTotalPlayersOnline());
     }
+
+    @Test
+    public void Test_millisecondsSincePlayerLoggedOn() throws InterruptedException {
+        ServerMaintenanceInformation source = new ServerMaintenanceInformation();
+        assertEquals(0, source.getMillisSinceLastLogin());
+        source.playerLoggedOn();
+        Thread.sleep(10L);
+        assertNotEquals(0, source.getMillisSinceLastLogin());
+    }
 }
