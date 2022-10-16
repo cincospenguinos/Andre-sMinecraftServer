@@ -6,7 +6,7 @@ import org.bukkit.Server;
  * Interface between the Bukkit server and anything that needs to know anything about
  * the server. Does not handle commands; only provides information.
  */
-public class ServerMaintenanceInformation {
+public class ServerMaintenanceInformation implements ServerSourceOfTruth {
     private final long _startupTime;
     private Server _server;
     private long _lastLoginMillis;
@@ -16,6 +16,13 @@ public class ServerMaintenanceInformation {
         _startupTime = System.currentTimeMillis();
         _lastLoginMillis = -1;
         _mutex = new Object();
+    }
+
+    public ServerMaintenanceInformation(Server server) {
+        _startupTime = System.currentTimeMillis();
+        _lastLoginMillis = -1;
+        _mutex = new Object();
+        _server = server;
     }
 
     /**
@@ -42,11 +49,13 @@ public class ServerMaintenanceInformation {
     }
 
     public long getMillisSinceLastLogin() {
-        if (_lastLoginMillis < 0) {
-            return 0;
-        }
+        synchronized (_mutex) {
+            if (_lastLoginMillis < 0) {
+                return 0;
+            }
 
-        return System.currentTimeMillis() - _lastLoginMillis;
+            return System.currentTimeMillis() - _lastLoginMillis;
+        }
     }
 
     public void setServer(Server server) {
