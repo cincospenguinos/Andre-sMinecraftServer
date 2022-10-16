@@ -19,7 +19,6 @@ public class ServerInteractionPlugin extends JavaPlugin implements Listener, Run
         super.onEnable();
 
         _sourceOfTruth = new ServerMaintenanceInformation(getServer());
-
         BukkitScheduler scheduler = getServer().getScheduler();
         scheduler.scheduleSyncRepeatingTask(this, this, TERMINATION_TASK_DELAY_MILLIS, TERMINATION_TASK_DELAY_PERIOD_MILLIS);
     }
