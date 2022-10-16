@@ -1,0 +1,4 @@
+name: 'AndreServerPlugin'
+version: '0.0.1'
+main: 'usa.alafleur.spigot_plugin.ServerInteractionPlugin.java'
+api-version: '1.19'
