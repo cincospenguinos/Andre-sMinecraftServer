@@ -27,8 +27,11 @@ RUN mv spigot**.jar minecraft-server.jar
 RUN mv minecraft-server.jar /minecraft-server/minecraft-server.jar
 RUN mkdir /minecraft-server/plugins
 RUN cp /tmp/spigot_plugin/AndreServerPlugin.jar /minecraft-server/plugins/
+RUN echo "eula=true" > /minecraft-server/eula.txt
 
 WORKDIR /minecraft-server
 VOLUME /minecraft-server
 
-CMD ["java -jar /minecraft-server/minecraft-server.jar"]
+EXPOSE 25565
+EXPOSE 25566
+CMD ["java", "-jar", "/minecraft-server/minecraft-server.jar", "nogui"]
