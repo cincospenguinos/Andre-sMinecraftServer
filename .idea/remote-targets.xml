@@ -12,6 +12,11 @@
             <option name="versionString" value="3.8.6" />
           </config>
         </ContributedStateBase>
+        <ContributedStateBase type="JavaLanguageRuntime">
+          <config>
+            <option name="homePath" value="/home/alafleur/.jdks/openjdk-19" />
+          </config>
+        </ContributedStateBase>
       </target>
     </targets>
   </component>

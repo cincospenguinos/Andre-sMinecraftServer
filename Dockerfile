@@ -1,4 +1,9 @@
-FROM eclipse-temurin:17 as build
+FROM eclipse-temurin:17
+
+RUN apt update && apt install -y git
+
+# This is where we're putting everything
+RUN mkdir /minecraft-server
 
 # Get Maven
 WORKDIR /opt
@@ -8,10 +13,10 @@ ENV PATH="/opt/apache-maven-3.8.6/bin:$PATH"
 
 # Build spigot plugin
 RUN mkdir /tmp/spigot_plugin
-COPY spigot_plugin /tmp/spigot_plugin
 WORKDIR /tmp/spigot_plugin
+COPY . .
 RUN mvn package
-RUN mv /tmp/spigot_plugin/target/AndresServerPlugin-jar-with-dependencies.jar /tmp/spigot_plugin/AndreServerPlugin.jar
+RUN mv target/AndresServerPlugin-jar-with-dependencies.jar /tmp/spigot_plugin/AndreServerPlugin.jar
 
 # Build spigot
 RUN mkdir /tmp/build_spigot
@@ -19,4 +24,11 @@ WORKDIR /tmp/build_spigot
 RUN wget -O BuildTools.jar https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
 RUN java -jar BuildTools.jar
 RUN mv spigot**.jar minecraft-server.jar
+RUN mv minecraft-server.jar /minecraft-server/minecraft-server.jar
+RUN mkdir /minecraft-server/plugins
+RUN cp /tmp/spigot_plugin/AndreServerPlugin.jar /minecraft-server/plugins/
 
+WORKDIR /minecraft-server
+VOLUME /minecraft-server
+
+CMD ["java -jar /minecraft-server/minecraft-server.jar"]
