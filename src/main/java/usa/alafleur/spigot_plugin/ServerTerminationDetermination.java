@@ -19,14 +19,19 @@ public class ServerTerminationDetermination {
      * @return true if it is time to stop the server
      */
     public boolean timeToStopServer() {
-        if (_source.getMinutesSinceStartup() < MINUTES_TO_LOG_ON) {
+        boolean enoughMinutesElapsed = _source.getMinutesSinceStartup() > MINUTES_TO_LOG_ON;
+        if (!enoughMinutesElapsed) {
             return false;
         }
 
-        if (_source.getTotalPlayersOnline() > 0) {
-            return false;
+        boolean someoneHasLoggedOn = _source.getMillisSinceLastLogin() >= 0;
+        if (!someoneHasLoggedOn) {
+            return true;
         }
 
-        return _source.getMillisSinceLastLogin() >= MILLIS_LOGIN_TIME_LIMIT;
+        boolean enoughTimeSinceLogin = _source.getMillisSinceLastLogin() > MILLIS_LOGIN_TIME_LIMIT;
+        boolean noPlayers = _source.getTotalPlayersOnline() == 0;
+
+        return enoughTimeSinceLogin && noPlayers;
     }
 }

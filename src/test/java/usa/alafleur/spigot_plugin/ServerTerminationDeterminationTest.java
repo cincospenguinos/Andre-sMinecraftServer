@@ -17,6 +17,17 @@ public class ServerTerminationDeterminationTest {
     }
 
     @Test
+    public void Test_SaysYesToLongAfterStart() {
+        MockSourceOfTruth mockSource = new MockSourceOfTruth();
+        mockSource.MinutesSinceStartup = 11;
+        mockSource.TotalPlayersOnline = 0;
+        mockSource.MillisSinceLastLogin = -1;
+
+        ServerTerminationDetermination determination = new ServerTerminationDetermination(mockSource);
+        assertTrue(determination.timeToStopServer());
+    }
+
+    @Test
     public void Test_SaysNoWhenFolksAreOn() {
         MockSourceOfTruth mockSource = new MockSourceOfTruth();
         mockSource.MinutesSinceStartup = 20;
@@ -41,7 +52,7 @@ public class ServerTerminationDeterminationTest {
     @Test
     public void Test_SaysYesToMoreThanTenMinutesSinceStartupAndNoPlayersAndThirtySecondsSinceLogin() {
         MockSourceOfTruth mockSource = new MockSourceOfTruth();
-        mockSource.MinutesSinceStartup = 10;
+        mockSource.MinutesSinceStartup = 11;
         mockSource.TotalPlayersOnline = 0;
         mockSource.MillisSinceLastLogin = 30001L;
 
