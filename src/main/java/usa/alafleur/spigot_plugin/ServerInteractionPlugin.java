@@ -1,5 +1,6 @@
 package usa.alafleur.spigot_plugin;
 
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -21,6 +22,8 @@ public class ServerInteractionPlugin extends JavaPlugin implements Listener, Run
         _sourceOfTruth = new ServerMaintenanceInformation(getServer());
         BukkitScheduler scheduler = getServer().getScheduler();
         scheduler.scheduleSyncRepeatingTask(this, this, TERMINATION_TASK_DELAY_MILLIS, TERMINATION_TASK_DELAY_PERIOD_MILLIS);
+
+        getServer().getPluginManager().registerEvents(this, this);
     }
 
     @Override
@@ -45,5 +48,8 @@ public class ServerInteractionPlugin extends JavaPlugin implements Listener, Run
         }
 
         getLogger().log(Level.INFO, "Not time to stop the server.");
+
+        getLogger().log(Level.INFO, ">>> " + _sourceOfTruth.getMillisSinceLastLogin() + "\t" +
+                _sourceOfTruth.getTotalPlayersOnline() + "\t" + _sourceOfTruth.getMinutesSinceStartup());
     }
 }

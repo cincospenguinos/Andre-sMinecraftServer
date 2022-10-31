@@ -21,7 +21,7 @@ public class ServerTerminationDeterminationTest {
         MockSourceOfTruth mockSource = new MockSourceOfTruth();
         mockSource.MinutesSinceStartup = 11;
         mockSource.TotalPlayersOnline = 0;
-        mockSource.MillisSinceLastLogin = -1;
+        mockSource.MillisSinceLastLogin = 0;
 
         ServerTerminationDetermination determination = new ServerTerminationDetermination(mockSource);
         assertTrue(determination.timeToStopServer());

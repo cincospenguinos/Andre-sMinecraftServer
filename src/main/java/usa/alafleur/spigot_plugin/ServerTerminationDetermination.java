@@ -24,7 +24,7 @@ public class ServerTerminationDetermination {
             return false;
         }
 
-        boolean someoneHasLoggedOn = _source.getMillisSinceLastLogin() >= 0;
+        boolean someoneHasLoggedOn = _source.getMillisSinceLastLogin() > 0;
         if (!someoneHasLoggedOn) {
             return true;
         }
