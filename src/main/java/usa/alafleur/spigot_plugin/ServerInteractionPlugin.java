@@ -1,6 +1,5 @@
 package usa.alafleur.spigot_plugin;
 
-import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -9,6 +8,9 @@ import org.bukkit.scheduler.BukkitScheduler;
 
 import java.util.logging.Level;
 
+/**
+ * ServerInteractionPlugin, where the magic happens. Think of it as the Main class.
+ */
 public class ServerInteractionPlugin extends JavaPlugin implements Listener, Runnable {
     private static final long TERMINATION_TASK_DELAY_MILLIS = 1000L;
     private static final long TERMINATION_TASK_DELAY_PERIOD_MILLIS = 1000L;
@@ -37,7 +39,7 @@ public class ServerInteractionPlugin extends JavaPlugin implements Listener, Run
     }
 
     /**
-     * NOTE: This determines whether it is time or not to shut down the server, as well as stopping the interaction server.
+     * NOTE: This determines whether it is time or not to shut down the server
      */
     @Override
     public void run() {
@@ -48,8 +50,5 @@ public class ServerInteractionPlugin extends JavaPlugin implements Listener, Run
         }
 
         getLogger().log(Level.INFO, "Not time to stop the server.");
-
-        getLogger().log(Level.INFO, ">>> " + _sourceOfTruth.getMillisSinceLastLogin() + "\t" +
-                _sourceOfTruth.getTotalPlayersOnline() + "\t" + _sourceOfTruth.getMinutesSinceStartup());
     }
 }
