@@ -33,4 +33,5 @@ WORKDIR /minecraft-server
 VOLUME /minecraft-server
 
 EXPOSE 25565
+EXPOSE 25566
 CMD ["java", "-jar", "/minecraft-server/minecraft-server.jar", "nogui"]

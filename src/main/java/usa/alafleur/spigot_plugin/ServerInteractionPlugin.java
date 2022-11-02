@@ -12,8 +12,10 @@ import java.util.logging.Level;
  * ServerInteractionPlugin, where the magic happens. Think of it as the Main class.
  */
 public class ServerInteractionPlugin extends JavaPlugin implements Listener, Runnable {
-    private static final long TERMINATION_TASK_DELAY_MILLIS = 1000L;
-    private static final long TERMINATION_TASK_DELAY_PERIOD_MILLIS = 10000L;
+    private static final long TERMINATION_TASK_DELAY_TICKS = 1000L;
+    private static final long TERMINATION_TASK_DELAY_PERIOD_TICKS = 3000L;
+
+    private static final int INTERACTION_SERVER_PORT = 25566;
 
     private ServerMaintenanceInformation _sourceOfTruth;
     private InteractionServer _interactionServer;
@@ -23,10 +25,11 @@ public class ServerInteractionPlugin extends JavaPlugin implements Listener, Run
         super.onEnable();
 
         _sourceOfTruth = new ServerMaintenanceInformation(getServer());
-        _interactionServer = new InteractionServer(25566, _sourceOfTruth, getLogger());
-        BukkitScheduler scheduler = getServer().getScheduler();
-        scheduler.scheduleSyncRepeatingTask(this, this, TERMINATION_TASK_DELAY_MILLIS, TERMINATION_TASK_DELAY_PERIOD_MILLIS);
+        _interactionServer = new InteractionServer(INTERACTION_SERVER_PORT, _sourceOfTruth, getLogger());
+        _interactionServer.start();
 
+        BukkitScheduler scheduler = getServer().getScheduler();
+        scheduler.scheduleSyncRepeatingTask(this, this, TERMINATION_TASK_DELAY_TICKS, TERMINATION_TASK_DELAY_PERIOD_TICKS);
         getServer().getPluginManager().registerEvents(this, this);
     }
 

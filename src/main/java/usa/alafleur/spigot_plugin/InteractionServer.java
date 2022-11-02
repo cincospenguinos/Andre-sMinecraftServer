@@ -3,59 +3,61 @@ package usa.alafleur.spigot_plugin;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
-import java.security.SecureRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class InteractionServer implements Runnable {
     private ServerSourceOfTruth _source;
-    private final int listeningPort;
     private Logger _logger;
+    private final Thread _serverThread;
 
-    private final AtomicBoolean keepRunning;
-    private final AtomicInteger _shutdownValue;
-    private final SecureRandom _secureRandom;
+    private final int _listeningPort;
+    private final AtomicBoolean _keepRunning;
 
     public InteractionServer(int port) {
-        listeningPort = port;
-        keepRunning = new AtomicBoolean(true);
-        _secureRandom = new SecureRandom();
-        _shutdownValue = new AtomicInteger();
+        _listeningPort = port;
+        _keepRunning = new AtomicBoolean(true);
+        _serverThread = new Thread(this);
     }
 
     public InteractionServer(int port, ServerMaintenanceInformation sourceOfTruth, Logger logger) {
-        listeningPort = port;
-        keepRunning = new AtomicBoolean(true);
+        _listeningPort = port;
+        _keepRunning = new AtomicBoolean(true);
         _source = sourceOfTruth;
         _logger = logger;
-        _secureRandom = new SecureRandom();
-        _shutdownValue = new AtomicInteger();
+        _serverThread = new Thread(this);
     }
 
     public void start() {
-        new Thread(this).start();
+        _serverThread.start();
     }
 
     @Override
     public void run() {
         try {
-            ServerSocket socket = new ServerSocket(listeningPort);
+            ServerSocket socket = new ServerSocket(_listeningPort);
 
-            while (keepRunning.get()) {
+            while (_keepRunning.get()) {
                 Socket client = socket.accept();
                 String request = new BufferedReader(new InputStreamReader(client.getInputStream())).readLine();
                 String response = responseFor(request);
                 new PrintWriter(client.getOutputStream(), true).println(response);
                 client.close();
             }
+
+            _serverThread.interrupt();
         } catch (IOException e) {
             log(e.toString());
         }
+    }
+
+    private void log(String message) {
+        if (_logger == null) {
+            return;
+        }
+
+        _logger.log(Level.INFO, message);
     }
 
     private String responseFor(String request) {
@@ -71,38 +73,15 @@ public class InteractionServer implements Runnable {
     }
 
     public void stop() {
-        byte[] bytes = new byte[4];
-        _secureRandom.nextBytes(bytes);
-        ByteBuffer wrappedBytes = ByteBuffer.wrap(bytes);
-        int secureValue = wrappedBytes.asIntBuffer().get();
-        _shutdownValue.set(secureValue);
-
-        try (Socket socket = new Socket("localhost", listeningPort)) {
-            new PrintWriter(socket.getOutputStream(), true).println(_shutdownValue);
-            new BufferedReader(new InputStreamReader(socket.getInputStream())).readLine();
-            keepRunning.set(false);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        _keepRunning.set(false);
+        _serverThread.interrupt();
     }
 
     public boolean isStopped() {
-        return !keepRunning.get();
+        return !_keepRunning.get();
     }
 
     public void setSourceOfTruth(ServerSourceOfTruth source) {
         _source = source;
-    }
-
-    private void log(String message) {
-        if (_logger == null) {
-            return;
-        }
-
-        _logger.log(Level.INFO, message);
-    }
-
-    public void setLogger(Logger logger) {
-        _logger = logger;
     }
 }
