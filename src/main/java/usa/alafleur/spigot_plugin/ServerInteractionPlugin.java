@@ -13,15 +13,17 @@ import java.util.logging.Level;
  */
 public class ServerInteractionPlugin extends JavaPlugin implements Listener, Runnable {
     private static final long TERMINATION_TASK_DELAY_MILLIS = 1000L;
-    private static final long TERMINATION_TASK_DELAY_PERIOD_MILLIS = 1000L;
+    private static final long TERMINATION_TASK_DELAY_PERIOD_MILLIS = 10000L;
 
     private ServerMaintenanceInformation _sourceOfTruth;
+    private InteractionServer _interactionServer;
 
     @Override
     public void onEnable() {
         super.onEnable();
 
         _sourceOfTruth = new ServerMaintenanceInformation(getServer());
+        _interactionServer = new InteractionServer(25566, _sourceOfTruth, getLogger());
         BukkitScheduler scheduler = getServer().getScheduler();
         scheduler.scheduleSyncRepeatingTask(this, this, TERMINATION_TASK_DELAY_MILLIS, TERMINATION_TASK_DELAY_PERIOD_MILLIS);
 
@@ -45,6 +47,7 @@ public class ServerInteractionPlugin extends JavaPlugin implements Listener, Run
     public void run() {
         ServerTerminationDetermination determination = new ServerTerminationDetermination(_sourceOfTruth);
         if (determination.timeToStopServer()) {
+            _interactionServer.stop();
             getLogger().log(Level.INFO, "Stopping the server...");
             getServer().shutdown();
         }
